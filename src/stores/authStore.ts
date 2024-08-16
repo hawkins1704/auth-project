@@ -2,14 +2,12 @@ import { create } from "zustand";
 import { User } from "../interfaces/user";
 import { persist } from "zustand/middleware";
 
-
-interface AuthState{
-    accessToken:string|null,
-    user:User|null,
-    isAuthenticated:boolean,
-    login:()=>void,
-    logout:()=>void,
-
+interface AuthState {
+    accessToken: string | null;
+    user: User | null;
+    isAuthenticated: boolean;
+    login: (token: string) => void;
+    logout: () => void;
 }
 
 /**
@@ -25,6 +23,8 @@ PREGUNTAS
 2. En que punto la app verifica si: HAY TOKEN o TOKEN INVALIDO
     -Entiendo que esto se puede verificar periodicamente o que se puede verificar en la siguiente llamada
      que se le haga al backend, pero no estoy seguro.
+    -He visto que en algunos proyectos se crea como un middleware en axios para poner ahi el token y no estar agregandolo
+     en cada llamada, entonces: Ahi deberia verificar si es que sigue activo o no??
 
 3. En que punto se puede obtener datos del usuario sin que sea NO SEGURO
     -Mi idea es guardar los datos del usuario en el localStorage luego de decodificar el accessToken
@@ -43,22 +43,29 @@ COSAS POR IMPLEMENTAR
 2. Verificacion/Refresh del token.
 3. Logica en la funcion LOGIN del store.
  */
-export const useAuthStore=create<AuthState>()(persist((set)=>({
-    accessToken:null,
-    user:null,
-    isAuthenticated:false,
-    login:()=>{
-        //Auth logic
-
-    },
-    logout:()=>{
-        set({
-            accessToken:null,
-            user:null,
-            isAuthenticated:false,
-        })
-    }
-
-}),{
-    name:'auth-storage'
-}))
+export const useAuthStore = create<AuthState>()(
+    persist(
+        (set) => ({
+            accessToken: null,
+            user: null,
+            isAuthenticated: false,
+            login: (token) => {
+                set(() => ({
+                    accessToken: token,
+                    //Mi idea es decodificar el token y guardar aqui los datos del usuario
+                    isAuthenticated: true,
+                }));
+            },
+            logout: () => {
+                set({
+                    accessToken: null,
+                    user: null,
+                    isAuthenticated: false,
+                });
+            },
+        }),
+        {
+            name: "auth-storage",
+        }
+    )
+);

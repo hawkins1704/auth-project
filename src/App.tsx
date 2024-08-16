@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { Login } from './pages/Login'
 import { Home } from './pages/Home';
+import {NotFound} from './pages/NotFound'
 import { Register } from './pages/Register'
 import { useAuthStore } from './stores/authStore'
 
@@ -23,6 +24,7 @@ function App() {
         <Route path='/' element={<ProtectedRoute element={<Home />}/>}/>
         <Route path='/login' element={<Login/>}/>
         <Route path='/register' element={<Register/>}/>
+        <Route path='*' element={<NotFound/>}/>
       </Routes>
     </BrowserRouter>
   )
